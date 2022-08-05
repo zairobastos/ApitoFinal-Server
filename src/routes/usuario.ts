@@ -1,9 +1,7 @@
-import { Router, Request, Response } from "express";
-
+import { Router } from "express";
+import * as User from "../controller/usuario";
 const router = Router();
 
-router.get("/", (req: Request, res: Response) => {
-	res.json({ message: "Hello World" });
-});
+router.post("/cadastrar", User.Usuario);
 
 export default router;
