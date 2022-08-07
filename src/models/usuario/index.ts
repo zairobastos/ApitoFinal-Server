@@ -1,5 +1,6 @@
 import { prisma } from "../../prisma";
 import { Criptografia } from "../crypto";
+import { emailConfirmacao } from "../emails/confirmarCadastro";
 
 export type Usuario = {
 	nome: string;
@@ -19,7 +20,10 @@ export const User = {
 					imagem,
 				},
 			})
-			.then((res) => res)
+			.then((res) => {
+				emailConfirmacao(nome, email, res.id);
+				return res;
+			})
 			.catch((err) => err);
 		return cad;
 	},
@@ -33,5 +37,23 @@ export const User = {
 			.then((res) => res)
 			.catch((err) => err);
 		return user;
+	},
+	setAtivo: async (id: string) => {
+		const usuario = await prisma.usuario
+			.update({
+				where: {
+					id,
+				},
+				data: {
+					ativo: true,
+				},
+			})
+			.then(() => {
+				return true;
+			})
+			.catch(() => {
+				return false;
+			});
+		return usuario;
 	},
 };
