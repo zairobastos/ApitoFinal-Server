@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { Criptografia } from "../../models/crypto";
 import { User } from "../../models/usuario";
+import JWT from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const Usuario = async (req: Request, res: Response) => {
 	const { nome, email, senha, imagem } = req.body;
@@ -21,27 +25,42 @@ export const Usuario = async (req: Request, res: Response) => {
 
 export const Login = async (req: Request, res: Response) => {
 	const { email, senha } = req.body;
-	const user = await User.seacherEmail(email);
-	if (user) {
-		if (user.ativo === false) {
-			res.status(400).json({
-				message: "Ative a sua conta, para poder fazer login",
-			});
-		} else if (user.ativo === true) {
-			if (user.senha === Criptografia(senha)) {
-				res.status(200).json({
-					message: "Usuário logado com sucesso",
-				});
-			} else {
+	if (email && senha) {
+		const user = await User.seacherEmail(email);
+		if (user) {
+			if (user.ativo === false) {
 				res.status(400).json({
-					message: "Dados incorretos",
+					message: "Ative a sua conta, para poder fazer login",
 				});
+			} else if (user.ativo === true) {
+				if (user.senha === Criptografia(senha)) {
+					const token = JWT.sign(
+						{
+							id: user.id,
+							email: user.email,
+							nome: user.nome,
+						},
+						process.env.JWT_SECRET as string
+					);
+					res.status(200).json({
+						user: {
+							nome: user.nome,
+						},
+						token,
+					});
+				} else {
+					res.json({
+						message: "Dados incorretos",
+					});
+				}
 			}
+		} else {
+			res.status(400).json({
+				message: "Usuário não cadastrado",
+			});
 		}
 	} else {
-		res.status(400).json({
-			message: "Usuário não cadastrado",
-		});
+		res.status(400).send({ message: "Está faltando algum dado!" });
 	}
 };
 
