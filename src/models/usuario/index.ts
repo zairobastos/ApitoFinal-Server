@@ -56,4 +56,32 @@ export const User = {
 			});
 		return usuario;
 	},
+	possuiImagem: async (id: string) => {
+		const usuario = await prisma.usuario
+			.findFirst({
+				where: {
+					id,
+				},
+			})
+			.then((res) => {
+				return res;
+			})
+			.catch((err) => err);
+		return usuario;
+	},
+	deleteUser: async (id: string) => {
+		const usuario = await prisma.usuario
+			.delete({
+				where: {
+					id,
+				},
+			})
+			.then(() => {
+				return true;
+			})
+			.catch(() => {
+				return false;
+			});
+		return usuario;
+	},
 };

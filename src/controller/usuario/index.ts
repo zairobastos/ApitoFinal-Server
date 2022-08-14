@@ -39,12 +39,14 @@ export const Login = async (req: Request, res: Response) => {
 							id: user.id,
 							email: user.email,
 							nome: user.nome,
+							imagem: user.imagem,
 						},
 						process.env.JWT_SECRET as string
 					);
 					res.status(200).json({
 						user: {
 							nome: user.nome,
+							imagem: user.imagem,
 						},
 						token,
 					});
@@ -70,4 +72,23 @@ export const confirmarCadastro = async (req: Request, res: Response) => {
 	usuario
 		? res.status(200).send(res.redirect("http://localhost:5173/login"))
 		: res.status(400).send({ message: "Erro ao confirmar usuário!" });
+};
+
+export const getImagem = async (req: Request, res: Response) => {
+	const { id } = req.body;
+	const usuario = await User.seacherEmail(id);
+	console.log(usuario);
+	if (usuario) {
+		res.status(200).send(usuario.imagem);
+	} else {
+		res.status(400).send({ message: "Erro ao buscar imagem!" });
+	}
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+	const { id } = req.params;
+	const usuario = await User.deleteUser(id);
+	usuario
+		? res.status(200).send({ message: "Usuário deletado com sucesso!" })
+		: res.status(400).send({ message: "Erro ao deletar usuário!" });
 };

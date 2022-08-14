@@ -20,6 +20,7 @@ export const Authorization = (req: Request, res: Response) => {
 					id: decoded.id,
 					email: decoded.email,
 					nome: decoded.nome,
+					imagem: decoded.imagem,
 				},
 			});
 		} else {
